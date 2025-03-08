@@ -1,0 +1,60 @@
+name: Deploy LineUpTunes Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up AWS credentials (this will require AWS access keys to be set as GitHub secrets)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_2SIPS_PYTHON_ROLE }}
+          aws-region: us-west-2
+
+      # Step 3: Install Python 3.13
+      - name: Install Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.0"
+
+      - name: Verify Python Version
+        run: python --version
+
+      # Step 4: Set up SAM CLI and dependencies
+      - name: Install SAM CLI
+        run: |
+          sudo apt-get install -y unzip
+          curl -Lo aws-sam-cli.zip https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+          unzip aws-sam-cli.zip -d sam-installation
+          sudo ./sam-installation/install --update
+          sam --version
+
+      # Step 5: Build SAM application
+      - name: Build SAM application
+        run: sam build --no-cached
+
+      # Step 6: Deploy SAM application
+      - name: Deploy SAM application
+        run: |
+          sam deploy --no-confirm-changeset \
+          --stack-name LineUpTunesLambda \
+          --capabilities CAPABILITY_IAM \
+          --s3-bucket ${{ secrets.AWS_S3_BUCKET }}
+
+      # Optionally: Verify deployment with test commands
+      - name: Post-Deployment Verification
+        run: |
+          aws cloudformation describe-stacks --stack-name LineUpTunesLambda

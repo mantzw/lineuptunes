@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Serverless Python API - That creates playlists from artists, commonly used for music festivals.
+
+Resources:
+  RandomDrinkLambda2SipsCocktails:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: app.lineuptunes_lambda_handler
+      Runtime: python3.13
+      MemorySize: 128
