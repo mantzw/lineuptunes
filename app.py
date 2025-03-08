@@ -91,7 +91,8 @@ def lineuptunes_lambda_handler(event, context):
         top_tracks = top_tracks_response.json()["tracks"]
         song_ids_to_add = []
         for i in range(0, number_of_songs_to_add):
-            song_ids_to_add.append("spotify:track:" + top_tracks[i]["id"])
+            if i < len(top_tracks):
+                song_ids_to_add.append("spotify:track:" + top_tracks[i]["id"])
 
         # ADD tracks to playlist
         add_items_to_playlist_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
