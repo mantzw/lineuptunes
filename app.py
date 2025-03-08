@@ -48,7 +48,7 @@ def lineuptunes_lambda_handler(event, context):
         'Content-Type': 'application/json'
     }
 
-    # Get User Id
+    # Get user Id
     get_user_url = "https://api.spotify.com/v1/me"
     get_user_response = requests.get(url=get_user_url, headers=basic_auth_header)
 
