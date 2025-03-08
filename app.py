@@ -80,6 +80,7 @@ def lineuptunes_lambda_handler(event, context):
     search_base_url = 'https://api.spotify.com/v1/search'
     bad_search = []
     for artist in artist_list:
+        # SEARCH for artist
         query = f"artist:{artist}"
         encoded_search_query = urllib.parse.quote(query)
         search_url = f"{search_base_url}?q={encoded_search_query}&type=artist"
@@ -91,6 +92,7 @@ def lineuptunes_lambda_handler(event, context):
         searched_artist = search_response.json()["artists"]
         artist_id = searched_artist["items"][0]["id"]
 
+        # GET top artist tracks
         top_tracks_url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks"
         top_tracks_response = requests.get(url=top_tracks_url, headers=basic_auth_header)
 
@@ -99,7 +101,7 @@ def lineuptunes_lambda_handler(event, context):
         for i in range(0, number_of_songs_to_add):
             song_ids_to_add.append("spotify:track:" + top_tracks[i]["id"])
 
-        # ADD Tracks to playlist requires Authorization Code with PKCE Flow like create new playlist.
+        # ADD tracks to playlist
         add_items_to_playlist_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
         add_items_to_playlist_data = {
             "uris": song_ids_to_add
