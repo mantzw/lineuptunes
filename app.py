@@ -1,18 +1,7 @@
 import requests
 import base64
 import urllib.parse
-import boto3
 import os
-
-from base64 import b64decode
-
-ENCRYPTED = os.environ['CLIENT_SECRET']
-# Decrypt code should run once and variables stored outside of the function
-# handler so that these are decrypted once per container
-decrypted_client_secret = boto3.client('kms').decrypt(
-    CiphertextBlob=b64decode(ENCRYPTED),
-    EncryptionContext={'LambdaFunctionName': os.environ['AWS_LAMBDA_FUNCTION_NAME']}
-)['Plaintext'].decode('utf-8')
 
 def lineuptunes_lambda_handler(event, context):
     """
@@ -29,8 +18,8 @@ def lineuptunes_lambda_handler(event, context):
 
 
     # Get Access Token
-    client_id = '<client_id>'
-    client_secret = decrypted_client_secret
+    client_id = os.environ['CLIENT_ID']
+    client_secret = os.environ['CLIENT_SECRET']
 
     auth_url = "https://accounts.spotify.com/api/token"
 
