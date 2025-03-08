@@ -11,7 +11,7 @@ def lineuptunes_lambda_handler(event, context):
     # open "https://accounts.spotify.com/authorize?response_type=code&client_id=<client_id>&scope=user-read-private user-read-email playlist-modify-public playlist-modify-private&redirect_uri=http://localhost:9000/callback"
 
 
-    playlist_name = event["playlist_name"] + "(Unofficial)"
+    playlist_name = event["playlist_name"] + " - Unofficial"
     auth_code = event["auth_code"]
     number_of_songs_to_add = event["number_of_songs_to_add"]
     artist_list = event["artist_list"]
