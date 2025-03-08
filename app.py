@@ -79,8 +79,11 @@ def lineuptunes_lambda_handler(event, context):
             bad_search.append(artist)
 
         searched_artist = search_response.json()["artists"]
-        artist_id = searched_artist["items"][0]["id"]
-
+        if searched_artist["items"] > 0:
+            artist_id = searched_artist["items"][0]["id"]
+        else:
+            bad_search(artist)
+            
         # GET top artist tracks
         top_tracks_url = f"https://api.spotify.com/v1/artists/{artist_id}/top-tracks"
         top_tracks_response = requests.get(url=top_tracks_url, headers=basic_auth_header)
