@@ -1,8 +1,18 @@
 import requests
 import base64
 import urllib.parse
+import boto3
 import os
 
+from base64 import b64decode
+
+ENCRYPTED = os.environ['CLIENT_SECRET']
+# Decrypt code should run once and variables stored outside of the function
+# handler so that these are decrypted once per container
+decrypted_client_secret = boto3.client('kms').decrypt(
+    CiphertextBlob=b64decode(ENCRYPTED),
+    EncryptionContext={'LambdaFunctionName': os.environ['AWS_LAMBDA_FUNCTION_NAME']}
+)['Plaintext'].decode('utf-8')
 
 def lineuptunes_lambda_handler(event, context):
     """
@@ -15,11 +25,12 @@ def lineuptunes_lambda_handler(event, context):
     playlist_name = event["playlist_name"] + "(Unofficial)"
     auth_code = event["auth_code"]
     number_of_songs_to_add = event["number_of_songs_to_add"]
+    artist_list = event["artist_list"]
 
 
     # Get Access Token
     client_id = '<client_id>'
-    client_secret = os.getenv("CLIENT_SECRET")
+    client_secret = decrypted_client_secret
 
     auth_url = "https://accounts.spotify.com/api/token"
 
@@ -67,13 +78,15 @@ def lineuptunes_lambda_handler(event, context):
     print("PLAYLIST ID:", playlist_id)
 
     search_base_url = 'https://api.spotify.com/v1/search'
-    artist_list = ["The Lumineers", "Noah Kahan"]
+    bad_search = []
     for artist in artist_list:
         query = f"artist:{artist}"
         encoded_search_query = urllib.parse.quote(query)
         search_url = f"{search_base_url}?q={encoded_search_query}&type=artist"
 
         search_response = requests.get(url=search_url, headers=basic_auth_header)
+        if search_response.status_code > 200:
+            bad_search.append(artist)
 
         searched_artist = search_response.json()["artists"]
         artist_id = searched_artist["items"][0]["id"]
@@ -93,3 +106,6 @@ def lineuptunes_lambda_handler(event, context):
         }
 
         requests.post(url=add_items_to_playlist_url, headers=basic_post_headers, json=add_items_to_playlist_data)
+
+    if len(bad_search) > 0:
+        print("Bad artist search:", bad_search)
