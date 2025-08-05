@@ -57,4 +57,4 @@ jobs:
       # Optionally: Verify deployment with test commands
       - name: Post-Deployment Verification
         run: |
-          aws cloudformation describe-stacks --stack-name LineUpTunesLambda
+              aws cloudformation describe-stacks --stack-name LineUpTunesLambda | sed 's/[0-9]\{12\}/<aws_account_id>/g'
