@@ -189,7 +189,7 @@ The function handles several error cases:
 
 ## License
 
-[Add your chosen license here]
+[MIT License](https://github.com/mantzw/lineuptunes/blob/main/LICENSE)
 
 ## Troubleshooting
 
